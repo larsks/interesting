@@ -44,14 +44,14 @@ class Interesting:
 
     def handle_one_interest(self, interest):
         if self.after:
-            query = '({}) AND after:{}'.format(
+            query = '({}) AND after:"{}"'.format(
                 interest['query'], self.after)
         else:
             query = interest['query']
 
         LOG.debug('gerrit query = %s', query)
         res = self.gerrit('query', '--current-patch-set', '--files',
-                          '--format', 'JSON', query)
+                          '--format', 'JSON', "'%s'" % query)
 
         doc = res.stdout.decode('utf-8')
         changes = self.extract_changes(doc)
