@@ -28,7 +28,8 @@ class Interesting:
 
     def find(self, interests, name='<unknown>'):
         results = {}
-        for interest in interests:
+        for name, interest in interests:
+            LOG.info('processing interest = %s', name)
             matches = self.handle_one_interest(interest)
             for change, file_matches in matches:
                 if change['id'] not in results:
@@ -151,13 +152,14 @@ def main(remote, url, interests, after, debug, queries):
     with open(interests) as fd:
         interests = yaml.load(fd)
 
-    if queries is None:
-        queries = interests.values()
+    if not queries:
+        selected = [(k,v) for k,v in interests.items()]
     else:
-        queries = [interests[q] for q in queries]
+        selected = [(k,v) for k,v in interests.items()
+                   if k in queries]
 
     I = Interesting(url, after=after)
-    results = I.find(queries)
+    results = I.find(selected)
 
     for changeid, data in results.items():
         change = data['change']
